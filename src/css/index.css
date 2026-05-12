@@ -1,0 +1,40 @@
+/**
+ * Tailwind v4 design-token layer (reference-only).
+ *
+ * The library's JS does not emit raw Tailwind utility classes into its
+ * markup -- it uses BEM class names (`cm`, `cm__btn`, `pm`, ...). The
+ * Tailwind utilities we use via `@apply` inside component files are
+ * resolved through `@reference "tailwindcss"` in those files and inlined
+ * into the final selectors, so no separate utility layer is needed here.
+ *
+ * Preflight is deliberately excluded so this library never mutates the
+ * host page's element defaults. The library scopes its own reset to
+ * `#cc-main` (see ./base.css).
+ */
+@import "tailwindcss/theme.css" layer(theme);
+
+@import "./base.css";
+@import "./light-color-scheme.css";
+@import "./dark-color-scheme.css";
+@import "./components/consent-modal.css";
+@import "./components/preferences-modal.css";
+
+/**
+ * Map the library's design tokens into Tailwind's @theme so consumers
+ * who also use Tailwind in their own project pick them up.
+ */
+@theme {
+    --color-cc-bg: var(--cc-bg);
+    --color-cc-primary: var(--cc-primary-color);
+    --color-cc-secondary: var(--cc-secondary-color);
+    --color-cc-btn-primary: var(--cc-btn-primary-bg);
+    --color-cc-btn-primary-text: var(--cc-btn-primary-color);
+    --color-cc-btn-secondary: var(--cc-btn-secondary-bg);
+    --color-cc-btn-secondary-text: var(--cc-btn-secondary-color);
+    --color-cc-overlay: var(--cc-overlay-bg);
+
+    --radius-cc-modal: var(--cc-modal-border-radius);
+    --radius-cc-btn: var(--cc-btn-border-radius);
+
+    --font-cc: var(--cc-font-family);
+}

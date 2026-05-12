@@ -1,4 +1,6 @@
-/** Light color-scheme **/
+@reference "tailwindcss";
+
+/* Light color-scheme */
 :root, :host {
     --cc-bg: #ffffff;
     --cc-primary-color: #2c2f31;
@@ -25,8 +27,8 @@
     --cc-toggle-on-knob-bg: #ffffff;
     --cc-toggle-off-knob-bg: var(--cc-toggle-on-knob-bg);
 
-    --cc-toggle-enabled-icon-color: var(--cc-bg);   // yes (v tick)
-    --cc-toggle-disabled-icon-color: var(--cc-bg);  // no (x tick)
+    --cc-toggle-enabled-icon-color: var(--cc-bg);
+    --cc-toggle-disabled-icon-color: var(--cc-bg);
 
     --cc-toggle-readonly-bg: #d5dee2;
     --cc-toggle-readonly-knob-bg: #fff;

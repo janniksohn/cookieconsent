@@ -1,11 +1,11 @@
 import path from 'path';
+import fs from 'fs';
 import { defineConfig } from 'rollup';
 import terser from "@rollup/plugin-terser";
-import postcssCombineDuplicatedSelectors from 'postcss-combine-duplicated-selectors';
 import cssnanoPlugin from 'cssnano';
 import postcss from 'postcss';
+import tailwindcss from '@tailwindcss/postcss';
 import eslint from '@rollup/plugin-eslint';
-import * as sass from 'sass';
 import pkg from './package.json' with { type: "json"};
 
 const srcDir = './src';
@@ -22,22 +22,27 @@ export const banner = `/*!
 */
 `;
 
-function scssPlugin(postcssPlugins) {
-    const cssMap = new Map();
+/**
+ * Compile a CSS entry through PostCSS (Tailwind v4 + cleanup + minify)
+ * and emit the result as a single CSS asset.
+ */
+function cssPlugin(postcssPlugins) {
+    let entryId = null;
 
     return {
-        name: 'scss',
+        name: 'cookieconsent-css',
         transform(code, id) {
-            if (!/\.(scss|sass)$/.test(id)) return null;
-            const { css } = sass.compile(id);
-            cssMap.set(id, css);
+            if (!/\.css$/.test(id)) return null;
+            if (!entryId) entryId = id;
             return { code: 'export default "";', map: { mappings: '' } };
         },
         async generateBundle(outputOptions, bundle) {
-            if (!cssMap.size) return;
+            if (!entryId) return;
 
-            const css = [...cssMap.values()].join('\n');
-            const processed = await postcss(postcssPlugins.filter(Boolean)).process(css, { from: undefined });
+            const sourceCss = fs.readFileSync(entryId, 'utf8');
+
+            const processed = await postcss(postcssPlugins.filter(Boolean))
+                .process(sourceCss, { from: entryId });
 
             const outFile = outputOptions.file;
             const fileName = path.basename(outFile);
@@ -47,36 +52,21 @@ function scssPlugin(postcssPlugins) {
             }
 
             this.emitFile({ type: 'asset', fileName, source: processed.css });
-            cssMap.clear();
+            entryId = null;
         }
     };
 }
 
 const cssComponents = [
-    [
-        'core/_base.scss',
-        'base.css'
-    ],
-    [
-        'core/components/_consent-modal.scss',
-        'consent-modal.css'
-    ],
-    [
-        'core/components/_preferences-modal.scss',
-        'preferences-modal.css'
-    ],
-    [
-        'abstracts/_dark-color-scheme.scss',
-        'dark-scheme.css'
-    ],
-    [
-        'abstracts/_light-color-scheme.scss',
-        'light-scheme.css'
-    ]
+    ['base.css', 'base.css'],
+    ['components/consent-modal.css', 'consent-modal.css'],
+    ['components/preferences-modal.css', 'preferences-modal.css'],
+    ['dark-color-scheme.css', 'dark-scheme.css'],
+    ['light-color-scheme.css', 'light-scheme.css'],
 ];
 
 const postcssPlugins = [
-    postcssCombineDuplicatedSelectors(),
+    tailwindcss(),
     productionMode && cssnanoPlugin({
         preset: ["default", {
             discardComments: {
@@ -87,7 +77,7 @@ const postcssPlugins = [
 ];
 
 const cssComponentsRollup = cssComponents.map(component => {
-    const src = `${srcDir}/scss/${component[0]}`;
+    const src = `${srcDir}/css/${component[0]}`;
     const dst = `${cssComponentsDir}/${component[1]}`;
 
     return {
@@ -95,7 +85,7 @@ const cssComponentsRollup = cssComponents.map(component => {
         output: {
             file: dst,
         },
-        plugins: scssPlugin(postcssPlugins)
+        plugins: cssPlugin(postcssPlugins)
     };
 });
 
@@ -140,17 +130,17 @@ export default defineConfig(
                 eslint({
                     fix: true,
                     include: ['./src/**'],
-                    exclude: ['./src/scss/**']
+                    exclude: ['./src/css/**']
                 }),
                 productionMode && terserPlugin,
             ]
         },
         {
-            input: `${srcDir}/scss/index.scss`,
+            input: `${srcDir}/css/index.css`,
             output: {
                 file: `${distDir}/cookieconsent.css`,
             },
-            plugins: scssPlugin(postcssPlugins)
+            plugins: cssPlugin(postcssPlugins)
         },
         ...cssComponentsRollup
     ]
