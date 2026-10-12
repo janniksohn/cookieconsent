@@ -1,6 +1,7 @@
-/** Light color-scheme **/
-.cc--darkmode{
+@reference "tailwindcss";
 
+/* Dark color-scheme */
+.cc--darkmode {
     --cc-bg: #161a1c;
     --cc-primary-color: #ebf3f6;
     --cc-secondary-color: #aebbc5;
@@ -26,8 +27,8 @@
     --cc-toggle-on-knob-bg: var(--cc-btn-primary-color);
     --cc-toggle-off-knob-bg: var(--cc-btn-primary-color);
 
-    --cc-toggle-enabled-icon-color: var(--cc-btn-primary-color);   // yes (v tick)
-    --cc-toggle-disabled-icon-color: var(--cc-btn-primary-color);  // no (x tick)
+    --cc-toggle-enabled-icon-color: var(--cc-btn-primary-color);
+    --cc-toggle-disabled-icon-color: var(--cc-btn-primary-color);
 
     --cc-toggle-readonly-bg: #343e45;
     --cc-toggle-readonly-knob-bg: #5f6b72;
@@ -49,8 +50,8 @@
     --cc-footer-bg: #0c0e0f;
     --cc-footer-color: var(--cc-secondary-color);
     --cc-footer-border-color: #060809;
+}
 
-    #cc-main{
-        color-scheme: dark;
-    }
+.cc--darkmode #cc-main {
+    color-scheme: dark;
 }
